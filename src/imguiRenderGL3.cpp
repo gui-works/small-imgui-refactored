@@ -217,11 +217,11 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
 
         glBindVertexArray(g_vao);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
-        glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(float), v, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(float), v, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[1]);
-        glBufferData(GL_ARRAY_BUFFER, uvSize*sizeof(float), uv, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, uvSize*sizeof(float), uv, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[2]);
-        glBufferData(GL_ARRAY_BUFFER, cSize*sizeof(float), c, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, cSize*sizeof(float), c, GL_STREAM_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, (numCoords * 2 + numCoords - 2)*3);
 
 }
@@ -391,13 +391,13 @@ bool imguiRenderGLInit(const char* fontpath)
 
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
-        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[1]);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
-        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STREAM_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[2]);
         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*4, (void*)0);
-        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STREAM_DRAW);
         g_program = glCreateProgram();
 
         const char * vs =
@@ -597,11 +597,11 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
                                       };
                         glBindVertexArray(g_vao);
                         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
-                        glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), v, GL_STATIC_DRAW);
+                        glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), v, GL_STREAM_DRAW);
                         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[1]);
-                        glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), uv, GL_STATIC_DRAW);
+                        glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), uv, GL_STREAM_DRAW);
                         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[2]);
-                        glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), c, GL_STATIC_DRAW);
+                        glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), c, GL_STREAM_DRAW);
                         glDrawArrays(GL_TRIANGLES, 0, 6);
 
                 }

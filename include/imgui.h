@@ -24,8 +24,8 @@
 
 enum imguiMouseButton
 {
-        IMGUI_MBUT_LEFT = 0x01, 
-        IMGUI_MBUT_RIGHT = 0x02, 
+        IMGUI_MBUT_LEFT = 0x01,
+        IMGUI_MBUT_RIGHT = 0x02,
 };
 
 enum imguiTextAlign
@@ -55,7 +55,7 @@ bool imguiButton(const char* text, bool enabled = true);
 bool imguiItem(const char* text, bool enabled = true);
 bool imguiCheck(const char* text, bool checked, bool enabled = true);
 bool imguiCollapse(const char* text, const char* subtext, bool checked, bool enabled = true);
-void imguiLabel(const char* text);
+void imguiLabel(const char* text, int align);
 void imguiValue(const char* text);
 bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
 

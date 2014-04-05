@@ -38,7 +38,7 @@ static const char* allocText(const char* text)
         unsigned len = strlen(text)+1;
         if (g_textPoolSize + len >= TEXT_POOL_SIZE)
                 return 0;
-        char* dst = &g_textPool[g_textPoolSize]; 
+        char* dst = &g_textPool[g_textPoolSize];
         memcpy(dst, text, len);
         g_textPoolSize += len;
         return dst;
@@ -167,7 +167,7 @@ struct GuiState
         float dragOrig;
         int widgetX, widgetY, widgetW;
         bool insideCurrentScroll;
-        
+
         unsigned int areaId;
         unsigned int widgetId;
 };
@@ -325,33 +325,37 @@ static bool g_insideScrollArea = false;
 
 bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scroll)
 {
-        g_state.areaId++;
-        g_state.widgetId = 0;
-        g_scrollId = (g_state.areaId<<16) | g_state.widgetId;
+    int header = (name != NULL) ? AREA_HEADER : SCROLL_AREA_PADDING * 2;
 
-        g_state.widgetX = x + SCROLL_AREA_PADDING;
-        g_state.widgetY = y+h-AREA_HEADER + (*scroll);
-        g_state.widgetW = w - SCROLL_AREA_PADDING*4;
-        g_scrollTop = y-AREA_HEADER+h;
-        g_scrollBottom = y+SCROLL_AREA_PADDING;
-        g_scrollRight = x+w - SCROLL_AREA_PADDING*3;
-        g_scrollVal = scroll;
+    g_state.areaId++;
+    g_state.widgetId = 0;
+    g_scrollId = (g_state.areaId<<16) | g_state.widgetId;
 
-        g_scrollAreaTop = g_state.widgetY;
+    g_state.widgetX = x + SCROLL_AREA_PADDING;
+    g_state.widgetY = y+h-header + (*scroll);
+    g_state.widgetW = w - SCROLL_AREA_PADDING*4;
+    g_scrollTop = y-header+h;
+    g_scrollBottom = y+SCROLL_AREA_PADDING;
+    g_scrollRight = x+w - SCROLL_AREA_PADDING*3;
+    g_scrollVal = scroll;
 
-        g_focusTop = y-AREA_HEADER;
-        g_focusBottom = y-AREA_HEADER+h;
+    g_scrollAreaTop = g_state.widgetY;
 
-        g_insideScrollArea = inRect(x, y, w, h, false);
-        g_state.insideCurrentScroll = g_insideScrollArea;
+    g_focusTop = y-header;
+    g_focusBottom = y-header+h;
 
-        addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 6, imguiRGBA(0,0,0,192));
+    g_insideScrollArea = inRect(x, y, w, h, false);
+    g_state.insideCurrentScroll = g_insideScrollArea;
 
-        addGfxCmdText(x+AREA_HEADER/2, y+h-AREA_HEADER/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, name, imguiRGBA(255,255,255,128));
+    addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 6, imguiRGBA(0,0,0,192));
 
-        addGfxCmdScissor(x+SCROLL_AREA_PADDING, y+SCROLL_AREA_PADDING, w-SCROLL_AREA_PADDING*4, h-AREA_HEADER-SCROLL_AREA_PADDING);
+    if (name)
+    {
+        addGfxCmdText(x+header/2, y+h-header/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, name, imguiRGBA(255,255,255,128));
+    }
+    addGfxCmdScissor(x+SCROLL_AREA_PADDING, y+SCROLL_AREA_PADDING, w-SCROLL_AREA_PADDING*4, h-header-SCROLL_AREA_PADDING);
 
-        return g_insideScrollArea;
+    return g_insideScrollArea;
 }
 
 void imguiEndScrollArea()
@@ -370,20 +374,20 @@ void imguiEndScrollArea()
         int sh = stop - sbot; // The scrollable area height.
 
         float barHeight = (float)h/(float)sh;
-        
+
         if (barHeight < 1)
         {
                 float barY = (float)(y - sbot)/(float)sh;
                 if (barY < 0) barY = 0;
                 if (barY > 1) barY = 1;
-                
+
                 // Handle scroll bar logic.
                 unsigned int hid = g_scrollId;
                 int hx = x;
                 int hy = y + (int)(barY*h);
                 int hw = w;
                 int hh = (int)(barHeight*h);
-                
+
                 const int range = h - (hh-1);
                 bool over = inRect(hx, hy, hw, hh);
                 buttonLogic(hid, over);
@@ -403,7 +407,7 @@ void imguiEndScrollArea()
                                 *g_scrollVal = (int)((1-u) * (sh - h));
                         }
                 }
-                
+
                 // BG
                 addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, (float)w/2-1, imguiRGBA(0,0,0,196));
                 // Bar
@@ -430,7 +434,7 @@ bool imguiButton(const char* text, bool enabled)
 {
         g_state.widgetId++;
         unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
-        
+
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         int w = g_state.widgetW;
@@ -442,9 +446,9 @@ bool imguiButton(const char* text, bool enabled)
 
         addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, (float)BUTTON_HEIGHT/2-1, imguiRGBA(128,128,128, isActive(id)?196:96));
         if (enabled)
-                addGfxCmdText(x+BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, isHot(id) ? imguiRGBA(255,196,0,255) : imguiRGBA(255,255,255,200));
+                addGfxCmdText(x+w/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_CENTER, text, isHot(id) ? imguiRGBA(255,196,0,255) : imguiRGBA(255,255,255,200));
         else
-                addGfxCmdText(x+BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, imguiRGBA(128,128,128,200));
+                addGfxCmdText(x+w/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_CENTER, text, imguiRGBA(128,128,128,200));
 
         return res;
 }
@@ -453,16 +457,16 @@ bool imguiItem(const char* text, bool enabled)
 {
         g_state.widgetId++;
         unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
-        
+
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         int w = g_state.widgetW;
         int h = BUTTON_HEIGHT;
         g_state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
-        
+
         bool over = enabled && inRect(x, y, w, h);
         bool res = buttonLogic(id, over);
-        
+
         if (isHot(id))
                 addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 2.0f, imguiRGBA(255,196,0,isActive(id)?196:96));
 
@@ -470,7 +474,7 @@ bool imguiItem(const char* text, bool enabled)
                 addGfxCmdText(x+BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,200));
         else
                 addGfxCmdText(x+BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, imguiRGBA(128,128,128,200));
-        
+
         return res;
 }
 
@@ -478,7 +482,7 @@ bool imguiCheck(const char* text, bool checked, bool enabled)
 {
         g_state.widgetId++;
         unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
-        
+
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         int w = g_state.widgetW;
@@ -487,7 +491,7 @@ bool imguiCheck(const char* text, bool checked, bool enabled)
 
         bool over = enabled && inRect(x, y, w, h);
         bool res = buttonLogic(id, over);
-        
+
         const int cx = x+BUTTON_HEIGHT/2-CHECK_SIZE/2;
         const int cy = y+BUTTON_HEIGHT/2-CHECK_SIZE/2;
         addGfxCmdRoundedRect((float)cx-3, (float)cy-3, (float)CHECK_SIZE+6, (float)CHECK_SIZE+6, 4, imguiRGBA(128,128,128, isActive(id)?196:96));
@@ -511,7 +515,7 @@ bool imguiCollapse(const char* text, const char* subtext, bool checked, bool ena
 {
         g_state.widgetId++;
         unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
-        
+
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         int w = g_state.widgetW;
@@ -523,7 +527,7 @@ bool imguiCollapse(const char* text, const char* subtext, bool checked, bool ena
 
         bool over = enabled && inRect(x, y, w, h);
         bool res = buttonLogic(id, over);
-        
+
         if (checked)
                 addGfxCmdTriangle(cx, cy, CHECK_SIZE, CHECK_SIZE, 2, imguiRGBA(255,255,255,isActive(id)?255:200));
         else
@@ -536,16 +540,24 @@ bool imguiCollapse(const char* text, const char* subtext, bool checked, bool ena
 
         if (subtext)
                 addGfxCmdText(x+w-BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_RIGHT, subtext, imguiRGBA(255,255,255,128));
-        
+
         return res;
 }
 
-void imguiLabel(const char* text)
+void imguiLabel(const char* text, int align)
 {
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         g_state.widgetY -= BUTTON_HEIGHT;
-        addGfxCmdText(x, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
+        if (align == IMGUI_ALIGN_CENTER)
+        {
+            x += g_state.widgetW / 2;
+        }
+        else if (align == IMGUI_ALIGN_RIGHT)
+        {
+            x += g_state.widgetW;
+        }
+        addGfxCmdText(x, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, align, text, imguiRGBA(255,255,255,255));
 }
 
 void imguiValue(const char* text)
@@ -554,7 +566,7 @@ void imguiValue(const char* text)
         const int y = g_state.widgetY - BUTTON_HEIGHT;
         const int w = g_state.widgetW;
         g_state.widgetY -= BUTTON_HEIGHT;
-        
+
         addGfxCmdText(x+w-BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,200));
 }
 
@@ -562,7 +574,7 @@ bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vin
 {
         g_state.widgetId++;
         unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
-        
+
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
         int w = g_state.widgetW;
@@ -612,7 +624,7 @@ bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vin
         snprintf(fmt, 16, "%%.%df", digits >= 0 ? 0 : -digits);
         char msg[128];
         snprintf(msg, 128, fmt, *val);
-        
+
         if (enabled)
         {
                 addGfxCmdText(x+SLIDER_HEIGHT/2, y+SLIDER_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, isHot(id) ? imguiRGBA(255,196,0,255) : imguiRGBA(255,255,255,200));
