@@ -544,11 +544,14 @@ bool imguiCollapse(const char* text, const char* subtext, bool checked, bool ena
         return res;
 }
 
-void imguiLabel(const char* text, int align)
+void imguiLabel(const char* text, int align, bool dontMove)
 {
         int x = g_state.widgetX;
         int y = g_state.widgetY - BUTTON_HEIGHT;
-        g_state.widgetY -= BUTTON_HEIGHT;
+        if (!dontMove)
+        {
+            g_state.widgetY -= BUTTON_HEIGHT;
+        }
         if (align == IMGUI_ALIGN_CENTER)
         {
             x += g_state.widgetW / 2;
@@ -567,7 +570,7 @@ void imguiValue(const char* text)
         const int w = g_state.widgetW;
         g_state.widgetY -= BUTTON_HEIGHT;
 
-        addGfxCmdText(x+w-BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,200));
+        addGfxCmdText(x+w, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,200));
 }
 
 bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled)
