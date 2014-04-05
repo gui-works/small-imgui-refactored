@@ -1,5 +1,3 @@
-
-//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -55,9 +53,11 @@ bool imguiButton(const char* text, bool enabled = true);
 bool imguiItem(const char* text, bool enabled = true);
 bool imguiCheck(const char* text, bool checked, bool enabled = true);
 bool imguiCollapse(const char* text, const char* subtext, bool checked, bool enabled = true);
-void imguiLabel(const char* text, int align, bool dontMove = false);
-void imguiValue(const char* text);
+void imguiLabel(const char* text, int align = IMGUI_ALIGN_LEFT, bool dontMove = false);
+void imguiValue(const char* text, int align = IMGUI_ALIGN_RIGHT);
 bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
+
+void imguiLabelledValue(const char* label, const char* value);
 
 void imguiDrawText(int x, int y, int align, const char* text, unsigned int color);
 void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color);
