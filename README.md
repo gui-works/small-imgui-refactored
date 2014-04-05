@@ -14,30 +14,9 @@ The OpenGL backend was ported from OpenGL immediate mode to OpenGL 3.2 mainly to
 
 Build
 -------------------------
-The only depedency is OpenGL. GLFW, GLEW are embeded with the samples.
-
-Linux : Tested on Arch Linux, Ubuntu 12.10, Debian Wheezy with various versions of gcc
-
-    premake4 gmake
-    make debug
-    make release
-    ./sample
-
-
-Mac OS X : Tested on 10.7 (Lion) with XCode 4.6. Only compatible with core profile contexts.
-
-    premake4 gmake
-    make debug
-    make release
-    ./sample
-
-Windows : Tested on Windows 7 with Visual Studio 2008 and 2010
-
-    premake4 vs2008 
-    Open .sln file
-
+The only depedency is OpenGL.
 
 Usage
 ----------------------------
 
-Consult [sample.cpp](https://github.com/AdrienHerubel/imgui/blob/master/sample.cpp) for a detailed usage example. 
+Consult [sample.cpp](https://github.com/deltaluca/imgui/blob/master/samples/sample.cpp) for a detailed usage example. (Requires glfw3 and glew)

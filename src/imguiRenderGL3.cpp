@@ -23,7 +23,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "glew/glew.h"
+#include <GL/glew.h>
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
 #else
@@ -41,7 +41,7 @@ void* imguimalloc(size_t size, void* userptr);
 #define STBTT_malloc(x,y)    imguimalloc(x,y)
 #define STBTT_free(x,y)      imguifree(x,y)
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
+#include "../external/stb_truetype.h"
 
 void imguifree(void* ptr, void* /*userptr*/)
 {
@@ -80,7 +80,7 @@ inline unsigned int RGBA(unsigned char r, unsigned char g, unsigned char b, unsi
 static void drawPolygon(const float* coords, unsigned numCoords, float r, unsigned int col)
 {
         if (numCoords > TEMP_COORD_COUNT) numCoords = TEMP_COORD_COUNT;
-        
+
         for (unsigned i = 0, j = numCoords-1; i < numCoords; j=i++)
         {
                 const float* v0 = &coords[j*2];
@@ -97,7 +97,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
                 g_tempNormals[j*2+0] = dy;
                 g_tempNormals[j*2+1] = -dx;
         }
-        
+
         float colf[4] = { (float) (col&0xff) / 255.f, (float) ((col>>8)&0xff) / 255.f, (float) ((col>>16)&0xff) / 255.f, (float) ((col>>24)&0xff) / 255.f};
         float colTransf[4] = { (float) (col&0xff) / 255.f, (float) ((col>>8)&0xff) / 255.f, (float) ((col>>16)&0xff) / 255.f, 0};
 
@@ -120,7 +120,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
                 g_tempCoords[i*2+0] = coords[i*2+0]+dmx*r;
                 g_tempCoords[i*2+1] = coords[i*2+1]+dmy*r;
         }
-        
+
         int vSize = numCoords * 12 + (numCoords - 2) * 6;
         int uvSize = numCoords * 2 * 6 + (numCoords - 2) * 2 * 3;
         int cSize = numCoords * 4 * 6 + (numCoords - 2) * 4 * 3;
@@ -139,18 +139,18 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
             ptrV += 2;
             *ptrV = coords[j*2];
             *(ptrV+1) = coords[j*2 + 1];
-            ptrV += 2;          
+            ptrV += 2;
             *ptrV = g_tempCoords[j*2];
             *(ptrV+1) = g_tempCoords[j*2 + 1];
-            ptrV += 2;                     
+            ptrV += 2;
             *ptrV = g_tempCoords[j*2];
             *(ptrV+1) = g_tempCoords[j*2 + 1];
-            ptrV += 2;                     
+            ptrV += 2;
             *ptrV = g_tempCoords[i*2];
             *(ptrV+1) = g_tempCoords[i*2 + 1];
-            ptrV += 2;                     
+            ptrV += 2;
             *ptrV = coords[i*2];
-            *(ptrV+1) = coords[i*2 + 1];            
+            *(ptrV+1) = coords[i*2 + 1];
             ptrV += 2;
 
             *ptrC = colf[0];
@@ -184,7 +184,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
             *(ptrC+3) = colf[3];
             ptrC += 4;
         }
-        
+
         for (unsigned i = 2; i < numCoords; ++i)
         {
             *ptrV = coords[0];
@@ -192,10 +192,10 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
             ptrV += 2;
             *ptrV = coords[(i-1)*2];
             *(ptrV+1) = coords[(i-1)*2+1];
-            ptrV += 2;  
+            ptrV += 2;
             *ptrV = coords[i*2];
-            *(ptrV+1) = coords[i*2 + 1];            
-            ptrV += 2;            
+            *(ptrV+1) = coords[i*2 + 1];
+            ptrV += 2;
 
             *ptrC = colf[0];
             *(ptrC+1) = colf[1];
@@ -211,10 +211,10 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
             *(ptrC+1) = colf[1];
             *(ptrC+2) = colf[2];
             *(ptrC+3) = colf[3];
-            ptrC += 4;          
-        }        
+            ptrC += 4;
+        }
         glBindTexture(GL_TEXTURE_2D, g_whitetex);
-        
+
         glBindVertexArray(g_vao);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
         glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(float), v, GL_STATIC_DRAW);
@@ -223,7 +223,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[2]);
         glBufferData(GL_ARRAY_BUFFER, cSize*sizeof(float), c, GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, (numCoords * 2 + numCoords - 2)*3);
- 
+
 }
 
 static void drawRect(float x, float y, float w, float h, float fth, unsigned int col)
@@ -244,13 +244,13 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
         float verts[CIRCLE_VERTS*2];
         const float* cverts = g_circleVerts;
         float* v = verts;
-        
+
         for (int i = 0; i < CIRCLE_VERTS; ++i)
         {
                 *v++ = x + cverts[i*2]*w;
                 *v++ = y + cverts[i*2+1]*h;
         }
-        
+
         drawPolygon(verts, CIRCLE_VERTS, fth, col);
 }
 */
@@ -261,25 +261,25 @@ static void drawRoundedRect(float x, float y, float w, float h, float r, float f
         float verts[(n+1)*4*2];
         const float* cverts = g_circleVerts;
         float* v = verts;
-        
+
         for (unsigned i = 0; i <= n; ++i)
         {
                 *v++ = x+w-r + cverts[i*2]*r;
                 *v++ = y+h-r + cverts[i*2+1]*r;
         }
-        
+
         for (unsigned i = n; i <= n*2; ++i)
         {
                 *v++ = x+r + cverts[i*2]*r;
                 *v++ = y+h-r + cverts[i*2+1]*r;
         }
-        
+
         for (unsigned i = n*2; i <= n*3; ++i)
         {
                 *v++ = x+r + cverts[i*2]*r;
                 *v++ = y+r + cverts[i*2+1]*r;
         }
-        
+
         for (unsigned i = n*3; i < n*4; ++i)
         {
                 *v++ = x+w-r + cverts[i*2]*r;
@@ -287,7 +287,7 @@ static void drawRoundedRect(float x, float y, float w, float h, float r, float f
         }
         *v++ = x+w-r + cverts[0]*r;
         *v++ = y+r + cverts[1]*r;
-        
+
         drawPolygon(verts, (n+1)*4, fth, col);
 }
 
@@ -313,19 +313,19 @@ static void drawLine(float x0, float y0, float x1, float y1, float r, float fth,
         dy *= r;
         nx *= r;
         ny *= r;
-        
+
         verts[0] = x0-dx-nx;
         verts[1] = y0-dy-ny;
-        
+
         verts[2] = x0-dx+nx;
         verts[3] = y0-dy+ny;
-        
+
         verts[4] = x1+dx+nx;
         verts[5] = y1+dy+ny;
-        
+
         verts[6] = x1+dx-nx;
         verts[7] = y1+dy-ny;
-        
+
         drawPolygon(verts, 4, fth, col);
 }
 
@@ -345,27 +345,27 @@ bool imguiRenderGLInit(const char* fontpath)
         fseek(fp, 0, SEEK_END);
         int size = ftell(fp);
         fseek(fp, 0, SEEK_SET);
-        
-        unsigned char* ttfBuffer = (unsigned char*)malloc(size); 
+
+        unsigned char* ttfBuffer = (unsigned char*)malloc(size);
         if (!ttfBuffer)
         {
                 fclose(fp);
                 return false;
         }
-        
+
         fread(ttfBuffer, 1, size, fp);
         fclose(fp);
         fp = 0;
-        
+
         unsigned char* bmap = (unsigned char*)malloc(512*512);
         if (!bmap)
         {
                 free(ttfBuffer);
                 return false;
         }
-        
+
         stbtt_BakeFontBitmap(ttfBuffer,0, 15.0f, bmap,512,512, 32,96, g_cdata);
-        
+
         // can free ttf_buffer at this point
         glGenTextures(1, &g_ftex);
         glBindTexture(GL_TEXTURE_2D, g_ftex);
@@ -399,7 +399,7 @@ bool imguiRenderGLInit(const char* fontpath)
         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*4, (void*)0);
         glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
         g_program = glCreateProgram();
-    
+
         const char * vs =
         "#version 150\n"
         "uniform vec2 Viewport;\n"
@@ -486,17 +486,17 @@ static void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_ind
         stbtt_bakedchar *b = chardata + char_index;
         int round_x = STBTT_ifloor(*xpos + b->xoff);
         int round_y = STBTT_ifloor(*ypos - b->yoff);
-        
+
         q->x0 = (float)round_x;
         q->y0 = (float)round_y;
         q->x1 = (float)round_x + b->x1 - b->x0;
         q->y1 = (float)round_y - b->y1 + b->y0;
-        
+
         q->s0 = b->x0 / (float)pw;
         q->t0 = b->y0 / (float)pw;
         q->s1 = b->x1 / (float)ph;
         q->t1 = b->y1 / (float)ph;
-        
+
         *xpos += b->xadvance;
 }
 
@@ -536,12 +536,12 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
 {
         if (!g_ftex) return;
         if (!text) return;
-        
+
         if (align == IMGUI_ALIGN_CENTER)
                 x -= getTextLength(g_cdata, text)/2;
         else if (align == IMGUI_ALIGN_RIGHT)
                 x -= getTextLength(g_cdata, text);
-        
+
         float r = (float) (col&0xff) / 255.f;
         float g = (float) ((col>>8)&0xff) / 255.f;
         float b = (float) ((col>>16)&0xff) / 255.f;
@@ -549,9 +549,9 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
 
         // assume orthographic projection with units = screen pixels, origin at top left
         glBindTexture(GL_TEXTURE_2D, g_ftex);
-        
+
         const float ox = x;
-        
+
         while (*text)
         {
                 int c = (unsigned char)*text;
@@ -567,25 +567,25 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
                         }
                 }
                 else if (c >= 32 && c < 128)
-                {                       
+                {
                         stbtt_aligned_quad q;
                         getBakedQuad(g_cdata, 512,512, c-32, &x,&y,&q);
 
                         float v[12] = {
-                                        q.x0, q.y0, 
-                                        q.x1, q.y1,
-                                        q.x1, q.y0, 
                                         q.x0, q.y0,
-                                        q.x0, q.y1, 
-                                        q.x1, q.y1, 
+                                        q.x1, q.y1,
+                                        q.x1, q.y0,
+                                        q.x0, q.y0,
+                                        q.x0, q.y1,
+                                        q.x1, q.y1,
                                       };
                         float uv[12] = {
                                         q.s0, q.t0,
                                         q.s1, q.t1,
                                         q.s1, q.t0,
-                                        q.s0, q.t0, 
-                                        q.s0, q.t1, 
-                                        q.s1, q.t1, 
+                                        q.s0, q.t0,
+                                        q.s0, q.t1,
+                                        q.s1, q.t1,
                                       };
                         float c[24] = {
                                         r, g, b, a,
@@ -607,8 +607,8 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
                 }
                 ++text;
         }
-        
-        //glEnd();        
+
+        //glEnd();
         //glDisable(GL_TEXTURE_2D);
 }
 
