@@ -364,7 +364,7 @@ void imguiEndScrollArea()
         addGfxCmdScissor(-1,-1,-1,-1);
 
         // Draw scroll bar
-        int x = g_scrollRight+SCROLL_AREA_PADDING/2;
+        int x = g_scrollRight+SCROLL_AREA_PADDING;
         int y = g_scrollBottom;
         int w = SCROLL_AREA_PADDING*2;
         int h = g_scrollTop - g_scrollBottom;
@@ -426,6 +426,14 @@ void imguiEndScrollArea()
                                 if (*g_scrollVal > (sh - h)) *g_scrollVal = (sh - h);
                         }
                 }
+            if (*g_scrollVal > (sh - h))
+            {
+                *g_scrollVal = (sh - h);
+            }
+        }
+        else
+        {
+            *g_scrollVal = 0;
         }
         g_state.insideCurrentScroll = false;
 }
