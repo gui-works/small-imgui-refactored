@@ -444,12 +444,8 @@ bool imguiRenderGLInit(const char* fontpath)
         glDeleteShader(vso);
         glDeleteShader(fso);
 
-        glUseProgram(g_program);
         g_programViewportLocation = glGetUniformLocation(g_program, "Viewport");
         g_programTextureLocation = glGetUniformLocation(g_program, "Texture");
-
-        glUseProgram(0);
-
 
         free(ttfBuffer);
         free(bmap);
@@ -622,10 +618,18 @@ void imguiRenderGLDraw(int width, int height)
 
         glViewport(0, 0, width, height);
         glUseProgram(g_program);
-	glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0);
         glUniform2f(g_programViewportLocation, (float) width, (float) height);
         glUniform1i(g_programTextureLocation, 0);
-
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, g_vbos[1]);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, g_vbos[2]);
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*4, (void*)0);
 
         glDisable(GL_SCISSOR_TEST);
         for (int i = 0; i < nq; ++i)
@@ -691,4 +695,9 @@ void imguiRenderGLDraw(int width, int height)
                 }
         }
         glDisable(GL_SCISSOR_TEST);
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glUseProgram(0);
 }

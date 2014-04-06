@@ -347,7 +347,7 @@ bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scr
     g_insideScrollArea = inRect(x, y, w, h, false);
     g_state.insideCurrentScroll = g_insideScrollArea;
 
-    addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 6, imguiRGBA(0,0,0,192));
+    addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 6, imguiRGBA(50,50,50,192));
 
     if (name)
     {
