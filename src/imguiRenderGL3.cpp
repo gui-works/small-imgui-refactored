@@ -69,8 +69,11 @@ static GLuint g_whitetex = 0;
 static GLuint g_vao = 0;
 static GLuint g_vbos[3] = {0, 0, 0};
 static GLuint g_program = 0;
+static GLuint g_font_program = 0;
 static GLuint g_programViewportLocation = 0;
 static GLuint g_programTextureLocation = 0;
+static GLuint g_font_programViewportLocation = 0;
+static GLuint g_font_programTextureLocation = 0;
 
 inline unsigned int RGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
@@ -266,7 +269,7 @@ static void drawRect(float x, float y, float w, float h, float fth, unsigned int
         drawPolygon(verts, 4, fth, col);
 }
 
-static void drawTexturedRect(float x, float y, float w, float h, unsigned int texture, float tx0, float ty0, float tx1, float ty1)
+static void drawTexturedRect(float x, float y, float w, float h, unsigned int texture, unsigned int col, float tx0, float ty0, float tx1, float ty1)
 {
         float verts[4*2] =
         {
@@ -275,7 +278,7 @@ static void drawTexturedRect(float x, float y, float w, float h, unsigned int te
                 x+w-0.5f, y+h-0.5f,
                 x+0.5f, y+h-0.5f,
         };
-        drawTexturedPolygon(verts, 4, 1.0, 0xffffffff, texture, tx0, ty0, tx1, ty1);
+        drawTexturedPolygon(verts, 4, 1.0, col, texture, tx0, ty0, tx1, ty1);
 }
 
 /*
@@ -409,7 +412,7 @@ bool imguiRenderGLInit(const char* fontpath)
         // can free ttf_buffer at this point
         glGenTextures(1, &g_ftex);
         glBindTexture(GL_TEXTURE_2D, g_ftex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512,512, 0, GL_RED, GL_UNSIGNED_BYTE, bmap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_INTENSITY, 512,512, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmap);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -417,7 +420,7 @@ bool imguiRenderGLInit(const char* fontpath)
         unsigned char white_alpha = 255;
         glGenTextures(1, &g_whitetex);
         glBindTexture(GL_TEXTURE_2D, g_whitetex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1, 1, 0, GL_RED, GL_UNSIGNED_BYTE, &white_alpha);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_INTENSITY, 1, 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &white_alpha);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -439,6 +442,7 @@ bool imguiRenderGLInit(const char* fontpath)
         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*4, (void*)0);
         glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STREAM_DRAW);
         g_program = glCreateProgram();
+        g_font_program = glCreateProgram();
 
         const char * vs =
         "#version 150\n"
@@ -457,7 +461,38 @@ bool imguiRenderGLInit(const char* fontpath)
         GLuint vso = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vso, 1, (const char **)  &vs, NULL);
         glCompileShader(vso);
+
+        GLint isCompiled = 0;
+        glGetShaderiv(vso, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(vso, GL_INFO_LOG_LENGTH, &maxLength);
+
+            //The maxLength includes the NULL character
+            char* errorLog = new char[maxLength];
+            glGetShaderInfoLog(vso, maxLength, &maxLength, errorLog);
+            printf("%s\n", errorLog);
+
+            //Provide the infolog in whatever manor you deem best.
+            //Exit with failure.
+            glDeleteShader(vso); //Don't leak the vso.
+        }
+
         glAttachShader(g_program, vso);
+        glAttachShader(g_font_program, vso);
+
+        const char * fs2 =
+        "#version 150\n"
+        "in vec2 texCoord;\n"
+        "in vec4 vertexColor;\n"
+        "uniform sampler2D Texture;\n"
+        "out vec4  Color;\n"
+        "void main(void)\n"
+        "{\n"
+        "    Color = vertexColor * texture(Texture, texCoord).bgra;\n"
+        "}\n";
+        GLuint fso2 = glCreateShader(GL_FRAGMENT_SHADER);
 
         const char * fs =
         "#version 150\n"
@@ -467,25 +502,95 @@ bool imguiRenderGLInit(const char* fontpath)
         "out vec4  Color;\n"
         "void main(void)\n"
         "{\n"
-        "    float alpha = texture(Texture, texCoord).r;\n"
-        "    Color = vec4(vertexColor.rgb, vertexColor.a * alpha);\n"
+        "    Color = vertexColor * vec4(1, 1, 1, texture(Texture, texCoord).a);\n"
         "}\n";
         GLuint fso = glCreateShader(GL_FRAGMENT_SHADER);
 
         glShaderSource(fso, 1, (const char **) &fs, NULL);
         glCompileShader(fso);
-        glAttachShader(g_program, fso);
+        glAttachShader(g_program, fso2);
+
+        glGetShaderiv(fso, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(fso, GL_INFO_LOG_LENGTH, &maxLength);
+
+            //The maxLength includes the NULL character
+            char* errorLog = new char[maxLength];
+            glGetShaderInfoLog(fso, maxLength, &maxLength, errorLog);
+            printf("%s\n", errorLog);
+
+            //Provide the infolog in whatever manor you deem best.
+            //Exit with failure.
+            glDeleteShader(fso); //Don't leak the vso.
+        }
+
+        glShaderSource(fso2, 1, (const char **) &fs2, NULL);
+        glCompileShader(fso2);
+        glAttachShader(g_font_program, fso);
+
+        glGetShaderiv(fso2, GL_COMPILE_STATUS, &isCompiled);
+        if(isCompiled == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetShaderiv(fso2, GL_INFO_LOG_LENGTH, &maxLength);
+
+            //The maxLength includes the NULL character
+            char* errorLog = new char[maxLength];
+            glGetShaderInfoLog(fso2, maxLength, &maxLength, errorLog);
+            printf("%s\n", errorLog);
+
+            //Provide the infolog in whatever manor you deem best.
+            //Exit with failure.
+            glDeleteShader(fso2); //Don't leak the vso.
+        }
 
         glBindAttribLocation(g_program,  0,  "VertexPosition");
         glBindAttribLocation(g_program,  1,  "VertexTexCoord");
         glBindAttribLocation(g_program,  2,  "VertexColor");
         glBindFragDataLocation(g_program, 0, "Color");
+        glBindAttribLocation(g_font_program,  0,  "VertexPosition");
+        glBindAttribLocation(g_font_program,  1,  "VertexTexCoord");
+        glBindAttribLocation(g_font_program,  2,  "VertexColor");
+        glBindFragDataLocation(g_font_program, 0, "Color");
+
         glLinkProgram(g_program);
+        GLint isLinked = 0;
+        glGetProgramiv(g_program, GL_LINK_STATUS, (int *)&isLinked);
+        if(isLinked == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetProgramiv(g_program, GL_INFO_LOG_LENGTH, &maxLength);
+
+            //The maxLength includes the NULL character
+            char* infoLog = new char[maxLength];
+            glGetProgramInfoLog(g_program, maxLength, &maxLength, infoLog);
+            printf("%s\n", infoLog);
+        }
+
+        glLinkProgram(g_font_program);
+        glGetProgramiv(g_font_program, GL_LINK_STATUS, (int *)&isLinked);
+        if(isLinked == GL_FALSE)
+        {
+            GLint maxLength = 0;
+            glGetProgramiv(g_font_program, GL_INFO_LOG_LENGTH, &maxLength);
+
+            //The maxLength includes the NULL character
+            char* infoLog = new char[maxLength];
+            glGetProgramInfoLog(g_font_program, maxLength, &maxLength, infoLog);
+            printf("%s\n", infoLog);
+        }
+
         glDeleteShader(vso);
         glDeleteShader(fso);
+        glDeleteShader(fso2);
 
         g_programViewportLocation = glGetUniformLocation(g_program, "Viewport");
         g_programTextureLocation = glGetUniformLocation(g_program, "Texture");
+
+        g_font_programViewportLocation = glGetUniformLocation(g_font_program, "Viewport");
+        g_font_programTextureLocation = glGetUniformLocation(g_font_program, "Texture");
 
         free(ttfBuffer);
         free(bmap);
@@ -512,6 +617,12 @@ void imguiRenderGLDestroy()
         {
             glDeleteProgram(g_program);
             g_program = 0;
+        }
+
+        if (g_font_program)
+        {
+            glDeleteProgram(g_font_program);
+            g_font_program = 0;
         }
 
 }
@@ -572,6 +683,12 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
 {
         if (!g_ftex) return;
         if (!text) return;
+
+        glUseProgram(g_font_program);
+        glActiveTexture(GL_TEXTURE0);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 
         if (align == IMGUI_ALIGN_CENTER)
                 x -= getTextLength(g_cdata, text)/2;
@@ -646,6 +763,12 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
 
         //glEnd();
         //glDisable(GL_TEXTURE_2D);
+
+        glUseProgram(g_program);
+        glActiveTexture(GL_TEXTURE0);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 }
 
 
@@ -661,6 +784,10 @@ void imguiRenderGLDraw(int width, int height)
         glActiveTexture(GL_TEXTURE0);
         glUniform2f(g_programViewportLocation, (float) width, (float) height);
         glUniform1i(g_programTextureLocation, 0);
+        glUseProgram(g_font_program);
+        glUniform2f(g_font_programViewportLocation, (float) width, (float) height);
+        glUniform1i(g_font_programTextureLocation, 0);
+        glUseProgram(g_program);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
@@ -694,7 +821,7 @@ void imguiRenderGLDraw(int width, int height)
                 {
                     drawTexturedRect((float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f,
                                      (float)cmd.rect.w*s-1, (float)cmd.rect.h*s-1,
-                                     cmd.texturedRect.texture,
+                                     cmd.texturedRect.texture, cmd.col,
                                      cmd.texturedRect.tx0, cmd.texturedRect.ty0,
                                      cmd.texturedRect.tx1, cmd.texturedRect.ty1);
                 }
