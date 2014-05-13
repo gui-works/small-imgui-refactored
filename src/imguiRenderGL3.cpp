@@ -77,7 +77,7 @@ inline unsigned int RGBA(unsigned char r, unsigned char g, unsigned char b, unsi
         return (r) | (g << 8) | (b << 16) | (a << 24);
 }
 
-static void drawPolygon(const float* coords, unsigned numCoords, float r, unsigned int col)
+static void drawTexturedPolygon(const float* coords, unsigned numCoords, float r, unsigned int col, GLuint tex, float tx0, float ty0, float tx1, float ty1)
 {
         if (numCoords > TEMP_COORD_COUNT) numCoords = TEMP_COORD_COUNT;
 
@@ -132,6 +132,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
 
         float * ptrV = v;
         float * ptrC = c;
+        float * ptrUV = uv;
         for (unsigned i = 0, j = numCoords-1; i < numCoords; j=i++)
         {
             *ptrV = coords[i*2];
@@ -213,7 +214,29 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
             *(ptrC+3) = colf[3];
             ptrC += 4;
         }
-        glBindTexture(GL_TEXTURE_2D, g_whitetex);
+
+        float minX = 1e10;
+        float minY = 1e10;
+        float maxX = -1e10;
+        float maxY = -1e10;
+        for (float * ptrV2 = v; ptrV2 != ptrV; ptrV2 += 2)
+        {
+            minX = (minX < *ptrV2) ? minX : *ptrV2;
+            maxX = (maxX > *ptrV2) ? maxX : *ptrV2;
+            minY = (minY < *(ptrV2+1)) ? minY : *(ptrV2+1);
+            maxY = (maxY > *(ptrV2+1)) ? maxY : *(ptrV2+1);
+        }
+
+        float scaleX = (tx1 - tx0) / (maxX - minX);
+        float scaleY = (ty1 - ty0) / (maxY - minY);
+
+        for (float * ptrUV = uv, * ptrV2 = v; ptrV2 != ptrV; ptrV2 += 2, ptrUV += 2)
+        {
+            *ptrUV       = ((*ptrV2) - minX) * scaleX + tx0;
+            *(ptrUV + 1) = ((*(ptrV2 + 1)) - minY) * scaleY + ty0;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, tex);
 
         glBindVertexArray(g_vao);
         glBindBuffer(GL_ARRAY_BUFFER, g_vbos[0]);
@@ -226,6 +249,11 @@ static void drawPolygon(const float* coords, unsigned numCoords, float r, unsign
 
 }
 
+static void drawPolygon(const float* coords, unsigned numCoords, float r, unsigned int col)
+{
+    drawTexturedPolygon(coords, numCoords, r, col, g_whitetex, 0, 0, 1, 1);
+}
+
 static void drawRect(float x, float y, float w, float h, float fth, unsigned int col)
 {
         float verts[4*2] =
@@ -236,6 +264,18 @@ static void drawRect(float x, float y, float w, float h, float fth, unsigned int
                 x+0.5f, y+h-0.5f,
         };
         drawPolygon(verts, 4, fth, col);
+}
+
+static void drawTexturedRect(float x, float y, float w, float h, unsigned int texture, float tx0, float ty0, float tx1, float ty1)
+{
+        float verts[4*2] =
+        {
+                x+0.5f, y+0.5f,
+                x+w-0.5f, y+0.5f,
+                x+w-0.5f, y+h-0.5f,
+                x+0.5f, y+h-0.5f,
+        };
+        drawTexturedPolygon(verts, 4, 1.0, 0xffffffff, texture, tx0, ty0, tx1, ty1);
 }
 
 /*
@@ -649,6 +689,14 @@ void imguiRenderGLDraw(int width, int height)
                                                                 (float)cmd.rect.w*s-1, (float)cmd.rect.h*s-1,
                                                                 (float)cmd.rect.r*s, 1.0f, cmd.col);
                         }
+                }
+                else if (cmd.type == IMGUI_GFXCMD_TEXTURED_RECT)
+                {
+                    drawTexturedRect((float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f,
+                                     (float)cmd.rect.w*s-1, (float)cmd.rect.h*s-1,
+                                     cmd.texturedRect.texture,
+                                     cmd.texturedRect.tx0, cmd.texturedRect.ty0,
+                                     cmd.texturedRect.tx1, cmd.texturedRect.ty1);
                 }
                 else if (cmd.type == IMGUI_GFXCMD_LINE)
                 {

@@ -63,6 +63,7 @@ void imguiDrawText(int x, int y, int align, const char* text, unsigned int color
 void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color);
 void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color);
 void imguiDrawRect(float x, float y, float w, float h, unsigned int color);
+void imguiDrawTexturedRect(float x, float y, float w, float h, unsigned int color, unsigned int texture, float tx0, float ty0, float tx1, float ty1);
 
 // Pull render interface.
 enum imguiGfxCmdType
@@ -72,11 +73,19 @@ enum imguiGfxCmdType
         IMGUI_GFXCMD_LINE,
         IMGUI_GFXCMD_TEXT,
         IMGUI_GFXCMD_SCISSOR,
+        IMGUI_GFXCMD_TEXTURED_RECT,
 };
 
 struct imguiGfxRect
 {
         short x,y,w,h,r;
+};
+
+struct imguiGfxTexturedRect
+{
+        short x,y,w,h;
+        unsigned int texture;
+        float tx0, ty0, tx1, ty1;
 };
 
 struct imguiGfxText
@@ -101,6 +110,7 @@ struct imguiGfxCmd
                 imguiGfxLine line;
                 imguiGfxRect rect;
                 imguiGfxText text;
+                imguiGfxTexturedRect texturedRect;
         };
 };
 

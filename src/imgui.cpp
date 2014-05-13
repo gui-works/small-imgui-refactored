@@ -83,6 +83,25 @@ static void addGfxCmdRect(float x, float y, float w, float h, unsigned int color
         cmd.rect.r = 0;
 }
 
+static void addGfxCmdTexturedRect(float x, float y, float w, float h, unsigned int color, unsigned int texture, float tx0, float ty0, float tx1, float ty1)
+{
+        if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
+                return;
+        imguiGfxCmd& cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
+        cmd.type = IMGUI_GFXCMD_TEXTURED_RECT;
+        cmd.flags = 0;
+        cmd.col = color;
+        cmd.texturedRect.x = (short)(x*8.0f);
+        cmd.texturedRect.y = (short)(y*8.0f);
+        cmd.texturedRect.w = (short)(w*8.0f);
+        cmd.texturedRect.h = (short)(h*8.0f);
+        cmd.texturedRect.texture = texture;
+        cmd.texturedRect.tx0 = tx0;
+        cmd.texturedRect.ty0 = ty0;
+        cmd.texturedRect.tx1 = tx1;
+        cmd.texturedRect.ty1 = ty1;
+}
+
 static void addGfxCmdLine(float x0, float y0, float x1, float y1, float r, unsigned int color)
 {
         if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
@@ -721,4 +740,9 @@ void imguiDrawRect(float x, float y, float w, float h, unsigned int color)
 void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color)
 {
         addGfxCmdRoundedRect(x, y, w, h, r, color);
+}
+
+void imguiDrawTexturedRect(float x, float y, float w, float h, unsigned int color, unsigned int texture, float tx0, float ty0, float tx1, float ty1)
+{
+        addGfxCmdTexturedRect(x, y, w, h, color, texture, tx0, ty0, tx1, ty1);
 }
