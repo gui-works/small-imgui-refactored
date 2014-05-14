@@ -612,7 +612,7 @@ void imguiValue(const char* text, int align)
         }
         else if (align == IMGUI_ALIGN_RIGHT)
         {
-            x += w;
+            x += w - SLIDER_HEIGHT / 2;
         }
 
         addGfxCmdText(x, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, align, text, imguiRGBA(255,255,255,200));
