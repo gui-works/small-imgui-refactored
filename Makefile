@@ -1,6 +1,6 @@
 lib:
 	mkdir -p build
-	g++ -shared -fPIC -o build/libimgui.so.0.1 -Iinclude src/imgui.cpp src/imguiRenderGL3.cpp
+	g++ -shared -fPIC -o build/libimgui.so.0.1 -std=c++11 -Iinclude src/imgui.cpp src/imguiRenderGL3.cpp
 
 clean:
 	rm -rf build

@@ -18,11 +18,71 @@
 
 // Source altered and distributed from https://github.com/AdrienHerubel/imgui
 
+// Heavily modified Luca Deltodesco 2014 https://github.com/deltaluca/imgui
+
 #ifndef IMGUI_RENDER_GL_H
 #define IMGUI_RENDER_GL_H
 
-bool imguiRenderGLInit(const char* fontpath);
-void imguiRenderGLDestroy();
-void imguiRenderGLDraw(int width, int height);
+#include <GL/glew.h>
+#include <GL/gl.h>
 
-#endif // IMGUI_RENDER_GL_H
+#include "imgui.h"
+#include "stb_truetype.h"
+
+namespace imgui
+{
+    const unsigned TEMP_COORD_COUNT = 100;
+    const int CIRCLE_VERTS = 8*4;
+    struct RenderState
+    {
+        stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
+        GLuint ftex = 0;
+        GLuint whitetex = 0;
+        GLuint vao = 0;
+        GLuint vbos[3] = {0, 0, 0};
+        GLuint program = 0;
+        GLuint font_program = 0;
+        GLuint programViewportLocation = 0;
+        GLuint programTextureLocation = 0;
+        GLuint font_programViewportLocation = 0;
+        GLuint font_programTextureLocation = 0;
+
+        float tempCoords[TEMP_COORD_COUNT*2];
+        float tempNormals[TEMP_COORD_COUNT*2];
+        float tempVertices[TEMP_COORD_COUNT * 12 + (TEMP_COORD_COUNT - 2) * 6];
+        float tempTextureCoords[TEMP_COORD_COUNT * 12 + (TEMP_COORD_COUNT - 2) * 6];
+        float tempColors[TEMP_COORD_COUNT * 24 + (TEMP_COORD_COUNT - 2) * 12];
+        float circleVerts[CIRCLE_VERTS*2];
+    };
+
+    struct ImguiRenderGL3
+    {
+        bool init(const std::string& fontpath);
+        void destroy();
+        void draw(Imgui& imgui, int width, int height);
+
+        ~ImguiRenderGL3()
+        {
+            destroy();
+        }
+        ImguiRenderGL3() {}
+        ImguiRenderGL3(const ImguiRenderGL3&) = delete;
+        ImguiRenderGL3(ImguiRenderGL3&&) noexcept;
+        ImguiRenderGL3& operator=(ImguiRenderGL3&&) noexcept;
+
+    private:
+        bool initialized = false;
+        RenderState state;
+
+        void drawTexturedPolygon(const float* coords, unsigned numCoords, float r, unsigned int col, GLuint tex, float tx0, float ty0, float tx1, float ty1);
+        void drawPolygon(const float* coords, unsigned numCoords, float r, uint32_t col);
+        void drawRect(float x, float y, float w, float h, float fth, uint32_t col);
+        void drawTexturedRect(float x, float y, float w, float h, uint32_t texture, uint32_t col, float tx0, float ty0, float tx1, float ty1);
+        void drawRoundedRect(float x, float y, float w, float h, float r, float fth, uint32_t col);
+        void drawLine(float x0, float y0, float x1, float y1, float r, float fth, uint32_t col);
+        void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q);
+        void drawText(float x, float y, const std::string& text, int align, uint32_t col);
+    };
+}
+
+#endif

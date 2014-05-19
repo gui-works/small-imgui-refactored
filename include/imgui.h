@@ -17,105 +17,168 @@
 
 // Source altered and distributed from https://github.com/AdrienHerubel/imgui
 
+// Heavily modified Luca Deltodesco 2014 https://github.com/deltaluca/imgui
+
 #ifndef IMGUI_H
 #define IMGUI_H
 
-enum imguiMouseButton
+#include <stdint.h>
+#include <string>
+#include <vector>
+
+namespace imgui
 {
-        IMGUI_MBUT_LEFT = 0x01,
-        IMGUI_MBUT_RIGHT = 0x02,
-};
+    enum MouseButton : uint8_t
+    {
+        MBUT_LEFT  = 0x01,
+        MBUT_RIGHT = 0x02
+    };
 
-enum imguiTextAlign
-{
-        IMGUI_ALIGN_LEFT,
-        IMGUI_ALIGN_CENTER,
-        IMGUI_ALIGN_RIGHT,
-};
+    enum TextAlign : uint8_t
+    {
+        ALIGN_LEFT,
+        ALIGN_CENTER,
+        ALIGN_RIGHT
+    };
 
-inline unsigned int imguiRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255)
-{
-        return (r) | (g << 8) | (b << 16) | (a << 24);
-}
+    inline uint32_t RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff)
+    {
+        return r | (g << 8) | (b << 16) | (a << 24);
+    }
 
-void imguiBeginFrame(int mx, int my, unsigned char mbut, int scroll);
-void imguiEndFrame();
+    enum gfxCmdType : uint8_t
+    {
+        GFXCMD_RECT,
+        GFXCMD_TRIANGLE,
+        GFXCMD_LINE,
+        GFXCMD_TEXT,
+        GFXCMD_SCISSOR,
+        GFXCMD_TEXTURED_RECT
+    };
 
-bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scroll);
-void imguiEndScrollArea();
-
-void imguiIndent();
-void imguiUnindent();
-void imguiSeparator();
-void imguiSeparatorLine();
-
-bool imguiButton(const char* text, bool enabled = true);
-bool imguiItem(const char* text, bool enabled = true);
-bool imguiCheck(const char* text, bool checked, bool enabled = true);
-bool imguiCollapse(const char* text, const char* subtext, bool checked, bool enabled = true);
-void imguiLabel(const char* text, int align = IMGUI_ALIGN_LEFT, bool dontMove = false);
-void imguiValue(const char* text, int align = IMGUI_ALIGN_RIGHT);
-bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
-
-void imguiLabelledValue(const char* label, const char* value);
-
-void imguiDrawText(int x, int y, int align, const char* text, unsigned int color);
-void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color);
-void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color);
-void imguiDrawRect(float x, float y, float w, float h, unsigned int color);
-void imguiDrawTexturedRect(float x, float y, float w, float h, unsigned int color, unsigned int texture, float tx0, float ty0, float tx1, float ty1);
-
-// Pull render interface.
-enum imguiGfxCmdType
-{
-        IMGUI_GFXCMD_RECT,
-        IMGUI_GFXCMD_TRIANGLE,
-        IMGUI_GFXCMD_LINE,
-        IMGUI_GFXCMD_TEXT,
-        IMGUI_GFXCMD_SCISSOR,
-        IMGUI_GFXCMD_TEXTURED_RECT,
-};
-
-struct imguiGfxRect
-{
+    struct gfxRect
+    {
         short x,y,w,h,r;
-};
+    };
 
-struct imguiGfxTexturedRect
-{
+    struct gfxTexturedRect
+    {
         short x,y,w,h;
         unsigned int texture;
         float tx0, ty0, tx1, ty1;
-};
+    };
 
-struct imguiGfxText
-{
+    struct gfxText
+    {
         short x,y,align;
-        const char* text;
-};
+        std::string text;
+    };
 
-struct imguiGfxLine
-{
+    struct gfxLine
+    {
         short x0,y0,x1,y1,r;
-};
+    };
 
-struct imguiGfxCmd
-{
+    struct gfxCmd
+    {
         char type;
         char flags;
         char pad[2];
         unsigned int col;
-        union
-        {
-                imguiGfxLine line;
-                imguiGfxRect rect;
-                imguiGfxText text;
-                imguiGfxTexturedRect texturedRect;
-        };
-};
+        gfxLine line;
+        gfxRect rect;
+        gfxText text;
+        gfxTexturedRect texturedRect;
+    };
 
-const imguiGfxCmd* imguiGetRenderQueue();
-int imguiGetRenderQueueSize();
+    struct GuiState
+    {
+        GuiState() {}
 
+        bool left                = false;
+        bool leftPressed         = false;
+        bool leftReleased        = false;
+        int mx                   = -1;
+        int my                   = -1;
+        int scroll               = 0;
+        uint32_t active          = 0;
+        uint32_t hot             = 0;
+        uint32_t hotToBe         = 0;
+        bool isHot               = false;
+        bool isActive            = false;
+        bool wentActive          = false;
+        int dragX                = 0;
+        int dragY                = 0;
+        float dragOrig           = 0.f;
+        int widgetX              = 0;
+        int widgetY              = 0;
+        int widgetW              = 0;
+        bool insideCurrentScroll = false;
+        uint32_t areaId          = 0;
+        uint32_t widgetId        = 0;
+        int scrollTop            = 0;
+        int scrollBottom         = 0;
+        int scrollRight          = 0;
+        int scrollAreaTop        = 0;
+        int* scrollVal           = nullptr;
+        int focusTop             = 0;
+        int focusBottom          = 0;
+        uint32_t scrollId        = 0;
+        bool insideScrollArea    = false;
+    };
 
-#endif // IMGUI_H
+    struct Imgui
+    {
+        void beginFrame(int mouseX, int mouseY, MouseButton mbut, int scroll);
+        void endFrame();
+
+        bool beginScrollArea(const std::string& name, int x, int y, int w, int h, int& scroll);
+        void endScrollArea();
+
+        void indent();
+        void unindent();
+        void separator();
+        void separatorLine();
+
+        bool button  (const std::string& name, bool enabled = true);
+        bool item    (const std::string& name, bool enabled = true);
+        bool check   (const std::string& name, bool checked, bool enabled = true);
+        bool collapse(const std::string& name, const std::string& subText, bool checked, bool enabled = true);
+        void label   (const std::string& name, TextAlign align = ALIGN_LEFT, bool dontMove = false);
+        void value   (const std::string& name, TextAlign align = ALIGN_RIGHT);
+        bool slider  (const std::string& name, float& value, float vmin, float vmax, float vinc, bool enabled = true);
+
+        void labelledValue(const std::string& name, const std::string& value);
+
+        void drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color);
+        void drawLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
+        void drawRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
+        void drawRect(float x, float y, float w, float h, uint32_t color);
+        void drawTexturedRect(float x, float y, float w, float h, uint32_t color, unsigned int texture, float tx0, float ty0, float tx1, float ty1);
+
+        std::vector<gfxCmd> renderQueue;
+    private:
+        GuiState state;
+        bool anyActive();
+        bool isActive(uint32_t id);
+        bool isHot(uint32_t id);
+        bool inRect(int x, int y, int w, int h, bool checkScroll = true);
+        void clearInput();
+        void clearActive();
+        void setActive(uint32_t id);
+        void setHot(uint32_t id);
+        bool buttonLogic(uint32_t id, bool over);
+        void updateInput(int mx, int my, MouseButton mbut, int scroll);
+
+        void resetGfxCmdQueue();
+        void addGfxCmdScissor(int x, int y, int w, int h);
+        void addGfxCmdRect(float x, float y, float w, float h, uint32_t color);
+        void addGfxCmdTexturedRect(float x, float y, float w, float h, uint32_t color, uint32_t texture, float tx0, float ty0, float tx1, float ty1);
+        void addGfxCmdLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
+        void addGfxCmdRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
+        void addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t color);
+        void addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color);
+    };
+}
+
+#endif
