@@ -296,7 +296,7 @@ bool Imgui::button(const std::string& text, bool enabled)
 
     int x = state.widgetX;
     int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW;
+    int w = state.widgetW - SLIDER_MARKER_WIDTH;
     int h = BUTTON_HEIGHT;
     state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
@@ -482,7 +482,7 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
 
     int x = state.widgetX;
     int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW;
+    int w = state.widgetW - SLIDER_MARKER_WIDTH;
     int h = SLIDER_HEIGHT;
     state.widgetY -= SLIDER_HEIGHT + DEFAULT_SPACING;
 
