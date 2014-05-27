@@ -208,9 +208,19 @@ void ImguiRenderGL3::drawTexturedPolygon(const float* coords, unsigned numCoords
         *(ptrUV + 1) = ((*(ptrV2 + 1)) - minY) * scaleY + ty0;
     }
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    glBindVertexArray(state.vao);
+    if (GLEW_ARB_vertex_array_object)
+    {
+        glBindVertexArray(state.vao);
+    }
+    else
+    {
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+    }
     glBindBuffer(GL_ARRAY_BUFFER, state.vbos[0]);
     glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(float), v, GL_STREAM_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, state.vbos[1]);
@@ -362,6 +372,7 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
 
     // can free ttf_buffer at this point
     glGenTextures(1, &state.ftex);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, state.ftex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_INTENSITY, 512,512, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -370,15 +381,23 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     // can free ttf_buffer at this point
     unsigned char white_alpha = 255;
     glGenTextures(1, &state.whitetex);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, state.whitetex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_INTENSITY, 1, 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &white_alpha);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glGenVertexArrays(1, &state.vao);
+    // needed imgui to work with GL 2.1... no VAO :'(
+    if (GLEW_ARB_vertex_array_object)
+    {
+        glGenVertexArrays(1, &state.vao);
+    }
     glGenBuffers(3, state.vbos);
 
-    glBindVertexArray(state.vao);
+    if (GLEW_ARB_vertex_array_object)
+    {
+        glBindVertexArray(state.vao);
+    }
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -396,7 +415,7 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     state.font_program = glCreateProgram();
 
     const char * vs =
-    "#version 150\n"
+    "#version 120\n"
     "uniform vec2 Viewport;\n"
     "in vec2 VertexPosition;\n"
     "in vec2 VertexTexCoord;\n"
@@ -434,7 +453,7 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     glAttachShader(state.font_program, vso);
 
     const char * fs2 =
-    "#version 150\n"
+    "#version 120\n"
     "in vec2 texCoord;\n"
     "in vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
@@ -446,7 +465,7 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     GLuint fso2 = glCreateShader(GL_FRAGMENT_SHADER);
 
     const char * fs =
-    "#version 150\n"
+    "#version 120\n"
     "in vec2 texCoord;\n"
     "in vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
@@ -582,8 +601,11 @@ void ImguiRenderGL3::destroy()
     if (state.vao)
     {
         glDeleteVertexArrays(1, &state.vao);
-        glDeleteBuffers(3, state.vbos);
         state.vao = 0;
+    }
+    if (state.vbos[0])
+    {
+        glDeleteBuffers(3, state.vbos);
     }
 
     if (state.program)
@@ -673,6 +695,7 @@ void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int 
     float a = (float) ((col>>24)&0xff) / 255.f;
 
     // assume orthographic projection with units = screen pixels, origin at top left
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, state.ftex);
 
     const float ox = x;
@@ -720,7 +743,19 @@ void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int 
                     r, g, b, a,
                     r, g, b, a,
                       };
-            glBindVertexArray(state.vao);
+
+
+            if (GLEW_ARB_vertex_array_object)
+            {
+                glBindVertexArray(state.vao);
+            }
+            else
+            {
+                glEnableVertexAttribArray(0);
+                glEnableVertexAttribArray(1);
+                glEnableVertexAttribArray(2);
+            }
+
             glBindBuffer(GL_ARRAY_BUFFER, state.vbos[0]);
             glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), v, GL_STREAM_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, state.vbos[1]);
