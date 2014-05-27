@@ -420,8 +420,8 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     "in vec2 VertexPosition;\n"
     "in vec2 VertexTexCoord;\n"
     "in vec4 VertexColor;\n"
-    "out vec2 texCoord;\n"
-    "out vec4 vertexColor;\n"
+    "varying vec2 texCoord;\n"
+    "varying vec4 vertexColor;\n"
     "void main(void)\n"
     "{\n"
     "    vertexColor = VertexColor;\n"
@@ -457,10 +457,9 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     "in vec2 texCoord;\n"
     "in vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
-    "out vec4  Color;\n"
     "void main(void)\n"
     "{\n"
-    "    Color = vertexColor * texture(Texture, texCoord).bgra;\n"
+    "    gl_FragColor = vertexColor * texture2D(Texture, texCoord).bgra;\n"
     "}\n";
     GLuint fso2 = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -469,10 +468,9 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     "in vec2 texCoord;\n"
     "in vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
-    "out vec4  Color;\n"
     "void main(void)\n"
     "{\n"
-    "    Color = vertexColor * vec4(1, 1, 1, texture(Texture, texCoord).a);\n"
+    "    gl_FragColor = vertexColor * vec4(1, 1, 1, texture(Texture, texCoord).a);\n"
     "}\n";
     GLuint fso = glCreateShader(GL_FRAGMENT_SHADER);
 
