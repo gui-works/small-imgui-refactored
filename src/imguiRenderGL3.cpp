@@ -519,11 +519,9 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     glBindAttribLocation(state.program,  0,  "VertexPosition");
     glBindAttribLocation(state.program,  1,  "VertexTexCoord");
     glBindAttribLocation(state.program,  2,  "VertexColor");
-    glBindFragDataLocation(state.program, 0, "Color");
     glBindAttribLocation(state.font_program,  0,  "VertexPosition");
     glBindAttribLocation(state.font_program,  1,  "VertexTexCoord");
     glBindAttribLocation(state.font_program,  2,  "VertexColor");
-    glBindFragDataLocation(state.font_program, 0, "Color");
 
     glLinkProgram(state.program);
     GLint isLinked = 0;
