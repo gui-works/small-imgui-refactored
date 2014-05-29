@@ -157,7 +157,7 @@ namespace imgui
         void drawTexturedRect(float x, float y, float w, float h, uint32_t color, unsigned int texture, float tx0, float ty0, float tx1, float ty1);
 
         std::vector<gfxCmd> renderQueue;
-    private:
+
         GuiState state;
         bool anyActive();
         bool isActive(uint32_t id);
