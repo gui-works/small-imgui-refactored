@@ -470,7 +470,7 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     "uniform sampler2D Texture;\n"
     "void main(void)\n"
     "{\n"
-    "    gl_FragColor = vertexColor * vec4(1, 1, 1, texture(Texture, texCoord).a);\n"
+    "    gl_FragColor = vertexColor * vec4(1, 1, 1, texture2D(Texture, texCoord).a);\n"
     "}\n";
     GLuint fso = glCreateShader(GL_FRAGMENT_SHADER);
 
