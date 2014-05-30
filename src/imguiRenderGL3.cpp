@@ -617,27 +617,27 @@ void ImguiRenderGL3::destroy()
     }
 }
 
-void ImguiRenderGL3:: getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q)
+void ImguiRenderGL3:: getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, float scale)
 {
     stbtt_bakedchar *b = chardata + char_index;
-    int round_x = STBTT_ifloor(*xpos + b->xoff);
-    int round_y = STBTT_ifloor(*ypos - b->yoff);
+    int round_x = STBTT_ifloor(*xpos + (b->xoff * scale));
+    int round_y = STBTT_ifloor(*ypos - (b->yoff * scale));
 
     q->x0 = (float)round_x;
     q->y0 = (float)round_y;
-    q->x1 = (float)round_x + b->x1 - b->x0;
-    q->y1 = (float)round_y - b->y1 + b->y0;
+    q->x1 = (float)round_x + (b->x1 - b->x0) * scale;
+    q->y1 = (float)round_y - (b->y1 - b->y0) * scale;
 
     q->s0 = b->x0 / (float)pw;
     q->t0 = b->y0 / (float)pw;
     q->s1 = b->x1 / (float)ph;
     q->t1 = b->y1 / (float)ph;
 
-    *xpos += b->xadvance;
+    *xpos += b->xadvance * scale;
 }
 
 static const float tabStops[4] = {150, 210, 270, 330};
-static float getTextLength(stbtt_bakedchar *chardata, const char* text)
+static float getTextLength(stbtt_bakedchar *chardata, const char* text, float scale)
 {
     float xpos = 0;
     float len = 0;
@@ -664,10 +664,10 @@ static float getTextLength(stbtt_bakedchar *chardata, const char* text)
         }
         ++text;
     }
-    return len;
+    return len * scale;
 }
 
-void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int align, uint32_t col)
+void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int align, uint32_t col, float pointSize)
 {
     if (!state.ftex) return;
     if (textin.length() == 0) return;
@@ -680,10 +680,12 @@ void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int 
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
+    float scale = pointSize / 8.f;
+
     if (align == ALIGN_CENTER)
-        x -= getTextLength(state.cdata, text)/2;
+        x -= getTextLength(state.cdata, text, scale)/2;
     else if (align == ALIGN_RIGHT)
-        x -= getTextLength(state.cdata, text);
+        x -= getTextLength(state.cdata, text, scale);
 
     float r = (float) (col&0xff) / 255.f;
     float g = (float) ((col>>8)&0xff) / 255.f;
@@ -713,7 +715,7 @@ void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int 
         else if (c >= 32 && c < 128)
         {
             stbtt_aligned_quad q;
-            getBakedQuad(state.cdata, 512,512, c-32, &x,&y,&q);
+            getBakedQuad(state.cdata, 512,512, c-32, &x,&y,&q, scale);
 
             float v[12] = {
                     q.x0, q.y0,
@@ -857,7 +859,7 @@ void ImguiRenderGL3::draw(Imgui& imgui, int width, int height)
         }
         else if (cmd.type == GFXCMD_TEXT)
         {
-            drawText(cmd.text.x, cmd.text.y, cmd.text.text, cmd.text.align, cmd.col);
+            drawText(cmd.text.x, cmd.text.y, cmd.text.text, cmd.text.align, cmd.col, ((float)cmd.text.pointSize) / 100.f);
         }
         else if (cmd.type == GFXCMD_SCISSOR)
         {

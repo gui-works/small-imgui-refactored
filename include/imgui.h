@@ -70,7 +70,7 @@ namespace imgui
 
     struct gfxText
     {
-        short x,y,align;
+        short x,y,align,pointSize;
         std::string text;
     };
 
@@ -150,7 +150,7 @@ namespace imgui
 
         void labelledValue(const std::string& name, const std::string& value);
 
-        void drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color);
+        void drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color, float pointSize = 8.f);
         void drawLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
         void drawRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
         void drawRect(float x, float y, float w, float h, uint32_t color);
@@ -177,7 +177,7 @@ namespace imgui
         void addGfxCmdLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
         void addGfxCmdRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
         void addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t color);
-        void addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color);
+        void addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color, float pointSize = 8.f);
     };
 }
 

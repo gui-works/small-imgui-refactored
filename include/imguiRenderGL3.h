@@ -80,8 +80,8 @@ namespace imgui
         void drawTexturedRect(float x, float y, float w, float h, uint32_t texture, uint32_t col, float tx0, float ty0, float tx1, float ty1);
         void drawRoundedRect(float x, float y, float w, float h, float r, float fth, uint32_t col);
         void drawLine(float x0, float y0, float x1, float y1, float r, float fth, uint32_t col);
-        void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q);
-        void drawText(float x, float y, const std::string& text, int align, uint32_t col);
+        void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, float scale);
+        void drawText(float x, float y, const std::string& text, int align, uint32_t col, float pointSize);
     };
 }
 

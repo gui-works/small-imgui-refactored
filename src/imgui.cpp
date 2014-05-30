@@ -594,9 +594,9 @@ void Imgui::separatorLine()
 
     addGfxCmdRect((float)x, (float)y, (float)w, (float)h, RGBA(255,255,255,32));
 }
-void Imgui::drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color)
+void Imgui::drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color, float pointSize)
 {
-    addGfxCmdText(x, y, align, text, color);
+    addGfxCmdText(x, y, align, text, color, pointSize);
 }
 void Imgui::drawLine(float x0, float y0, float x1, float y1, float r, uint32_t color)
 {
@@ -696,7 +696,7 @@ void Imgui:: addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t c
     cmd.rect.h = (short)(h*8.0f);
     renderQueue.push_back(cmd);
 }
-void Imgui:: addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color)
+void Imgui:: addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color, float pointSize)
 {
     gfxCmd cmd;
     cmd.type = GFXCMD_TEXT;
@@ -706,5 +706,6 @@ void Imgui:: addGfxCmdText(int x, int y, int align, const std::string& text, uin
     cmd.text.y = (short)y;
     cmd.text.align = (short)align;
     cmd.text.text = text;
+    cmd.text.pointSize = (short)(pointSize * 100);
     renderQueue.push_back(cmd);
 }
