@@ -141,13 +141,15 @@ namespace imgui
         void separator();
         void separatorLine();
 
+        void renderPort(int x, int y, int w);
+
         bool button  (const std::string& name, bool enabled = true);
         bool item    (const std::string& name, bool enabled = true);
         bool check   (const std::string& name, bool checked, bool enabled = true);
         bool collapse(const std::string& name, const std::string& subText, bool checked, bool enabled = true);
         void label   (const std::string& name, TextAlign align = ALIGN_LEFT, bool dontMove = false);
         void value   (const std::string& name, TextAlign align = ALIGN_RIGHT);
-        bool slider  (const std::string& name, float& value, float vmin, float vmax, float vinc, bool enabled = true);
+        bool slider  (const std::string& name, float& value, float vmin, float vmax, float vinc, bool enabled = true, float pointSize = 8.f);
 
         void labelledValue(const std::string& name, const std::string& value);
 

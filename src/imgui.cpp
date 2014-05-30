@@ -475,14 +475,22 @@ void Imgui::labelledValue(const std::string& label, const std::string& value)
     this->label(label, ALIGN_LEFT, true);
     this->value(value);
 }
-bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, float vinc, bool enabled)
+
+void Imgui::renderPort(int x, int y, int w)
+{
+    state.widgetX = x;
+    state.widgetY = y;
+    state.widgetW = w;
+}
+
+bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, float vinc, bool enabled, float pointSize)
 {
     state.widgetId++;
     uint32_t id = (state.areaId << 16) | state.widgetId;
 
     int x = state.widgetX;
     int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW - SLIDER_MARKER_WIDTH;
+    int w = state.widgetW;
     int h = SLIDER_HEIGHT;
     state.widgetY -= SLIDER_HEIGHT + DEFAULT_SPACING;
 
