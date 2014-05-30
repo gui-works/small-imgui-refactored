@@ -58,25 +58,26 @@ namespace imgui
 
     struct gfxRect
     {
-        short x,y,w,h,r;
+        float x, y, w, h, r;
     };
 
     struct gfxTexturedRect
     {
-        short x,y,w,h;
+        float x, y, w, h;
         unsigned int texture;
         float tx0, ty0, tx1, ty1;
     };
 
     struct gfxText
     {
-        short x,y,align,pointSize;
+        float x, y, pointSize;
+        TextAlign align;
         std::string text;
     };
 
     struct gfxLine
     {
-        short x0,y0,x1,y1,r;
+        float x0, y0, x1, y1, r;
     };
 
     struct gfxCmd
@@ -177,7 +178,7 @@ namespace imgui
         void addGfxCmdLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
         void addGfxCmdRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
         void addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t color);
-        void addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color, float pointSize = 8.f);
+        void addGfxCmdText(int x, int y, TextAlign align, const std::string& text, uint32_t color, float pointSize = 8.f);
     };
 }
 

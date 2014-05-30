@@ -621,10 +621,10 @@ void Imgui:: addGfxCmdScissor(int x, int y, int w, int h)
     cmd.type = GFXCMD_SCISSOR;
     cmd.flags = x < 0 ? 0 : 1;      // on/off flag.
     cmd.col = 0;
-    cmd.rect.x = (short)x;
-    cmd.rect.y = (short)y;
-    cmd.rect.w = (short)w;
-    cmd.rect.h = (short)h;
+    cmd.rect.x = x;
+    cmd.rect.y = y;
+    cmd.rect.w = w;
+    cmd.rect.h = h;
     renderQueue.push_back(cmd);
 }
 void Imgui:: addGfxCmdRect(float x, float y, float w, float h, uint32_t color)
@@ -633,10 +633,10 @@ void Imgui:: addGfxCmdRect(float x, float y, float w, float h, uint32_t color)
     cmd.type = GFXCMD_RECT;
     cmd.flags = 0;
     cmd.col = color;
-    cmd.rect.x = (short)(x*8.0f);
-    cmd.rect.y = (short)(y*8.0f);
-    cmd.rect.w = (short)(w*8.0f);
-    cmd.rect.h = (short)(h*8.0f);
+    cmd.rect.x = (x*8.0f);
+    cmd.rect.y = (y*8.0f);
+    cmd.rect.w = (w*8.0f);
+    cmd.rect.h = (h*8.0f);
     cmd.rect.r = 0;
     renderQueue.push_back(cmd);
 }
@@ -647,10 +647,10 @@ void Imgui:: addGfxCmdTexturedRect(float x, float y, float w, float h, uint32_t 
     cmd.type = GFXCMD_TEXTURED_RECT;
     cmd.flags = 0;
     cmd.col = color;
-    cmd.rect.x = (short)(x*8.0f);
-    cmd.rect.y = (short)(y*8.0f);
-    cmd.rect.w = (short)(w*8.0f);
-    cmd.rect.h = (short)(h*8.0f);
+    cmd.rect.x = (x*8.0f);
+    cmd.rect.y = (y*8.0f);
+    cmd.rect.w = (w*8.0f);
+    cmd.rect.h = (h*8.0f);
     cmd.texturedRect.texture = texture;
     cmd.texturedRect.tx0 = tx0;
     cmd.texturedRect.ty0 = ty0;
@@ -664,11 +664,11 @@ void Imgui:: addGfxCmdLine(float x0, float y0, float x1, float y1, float r, uint
     cmd.type = GFXCMD_LINE;
     cmd.flags = 0;
     cmd.col = color;
-    cmd.line.x0 = (short)(x0*8.0f);
-    cmd.line.y0 = (short)(y0*8.0f);
-    cmd.line.x1 = (short)(x1*8.0f);
-    cmd.line.y1 = (short)(y1*8.0f);
-    cmd.line.r = (short)(r*8.0f);
+    cmd.line.x0 = (x0*8.0f);
+    cmd.line.y0 = (y0*8.0f);
+    cmd.line.x1 = (x1*8.0f);
+    cmd.line.y1 = (y1*8.0f);
+    cmd.line.r = (r*8.0f);
     renderQueue.push_back(cmd);
 }
 void Imgui:: addGfxCmdRoundedRect(float x, float y, float w, float h, float r, uint32_t color)
@@ -677,11 +677,11 @@ void Imgui:: addGfxCmdRoundedRect(float x, float y, float w, float h, float r, u
     cmd.type = GFXCMD_RECT;
     cmd.flags = 0;
     cmd.col = color;
-    cmd.rect.x = (short)(x*8.0f);
-    cmd.rect.y = (short)(y*8.0f);
-    cmd.rect.w = (short)(w*8.0f);
-    cmd.rect.h = (short)(h*8.0f);
-    cmd.rect.r = (short)(r*8.0f);
+    cmd.rect.x = (x*8.0f);
+    cmd.rect.y = (y*8.0f);
+    cmd.rect.w = (w*8.0f);
+    cmd.rect.h = (h*8.0f);
+    cmd.rect.r = (r*8.0f);
     renderQueue.push_back(cmd);
 }
 void Imgui:: addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t color)
@@ -690,22 +690,22 @@ void Imgui:: addGfxCmdTriangle(int x, int y, int w, int h, int flags, uint32_t c
     cmd.type = GFXCMD_TRIANGLE;
     cmd.flags = (char)flags;
     cmd.col = color;
-    cmd.rect.x = (short)(x*8.0f);
-    cmd.rect.y = (short)(y*8.0f);
-    cmd.rect.w = (short)(w*8.0f);
-    cmd.rect.h = (short)(h*8.0f);
+    cmd.rect.x = (x*8.0f);
+    cmd.rect.y = (y*8.0f);
+    cmd.rect.w = (w*8.0f);
+    cmd.rect.h = (h*8.0f);
     renderQueue.push_back(cmd);
 }
-void Imgui:: addGfxCmdText(int x, int y, int align, const std::string& text, uint32_t color, float pointSize)
+void Imgui:: addGfxCmdText(int x, int y, TextAlign align, const std::string& text, uint32_t color, float pointSize)
 {
     gfxCmd cmd;
     cmd.type = GFXCMD_TEXT;
     cmd.flags = 0;
     cmd.col = color;
-    cmd.text.x = (short)x;
-    cmd.text.y = (short)y;
-    cmd.text.align = (short)align;
+    cmd.text.x = x;
+    cmd.text.y = y;
+    cmd.text.align = align;
     cmd.text.text = text;
-    cmd.text.pointSize = (short)(pointSize * 100);
+    cmd.text.pointSize = (pointSize * 100);
     renderQueue.push_back(cmd);
 }
