@@ -495,7 +495,7 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
     int m = (int)(u * range);
 
     bool over = enabled && inRect(x + m, y, SLIDER_MARKER_WIDTH, SLIDER_HEIGHT);
-    bool res = buttonLogic(id, over);
+    buttonLogic(id, over);
     bool valChanged = false;
 
     if (isActive(id))
@@ -509,10 +509,11 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
         {
             u = state.dragOrig + (float)(state.mx - state.dragX) / (float)range;
             u = u < 0 ? 0 : u > 1 ? 1 : u;
+            float oldval = val;
             val = vmin + u * (vmax-vmin);
             val = floorf(val / vinc + 0.5f) * vinc; // Snap to vinc
             m = (int)(u * range);
-            valChanged = true;
+            valChanged = val != oldval;
         }
     }
 
@@ -568,7 +569,7 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
                       RGBA(128,128,128,200));
     }
 
-    return res || valChanged;
+    return valChanged;
 }
 void Imgui::indent()
 {
