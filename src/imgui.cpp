@@ -151,15 +151,15 @@ void Imgui::endFrame()
     clearInput();
 }
 
-static const int BUTTON_HEIGHT       = 16;
-static const int SLIDER_HEIGHT       = 16;
-static const int SLIDER_MARKER_WIDTH = 8;
-static const int CHECK_SIZE          = 8;
-static const int DEFAULT_SPACING     = 2;
-static const int TEXT_HEIGHT         = 8;
-static const int SCROLL_AREA_PADDING = 3;
-static const int INDENT_SIZE         = 16;
-static const int AREA_HEADER         = 20;
+static const float BUTTON_HEIGHT       = 16;
+static const float SLIDER_HEIGHT       = 16;
+static const float SLIDER_MARKER_WIDTH = 8;
+static const float CHECK_SIZE          = 8;
+static const float DEFAULT_SPACING     = 2;
+static const float TEXT_HEIGHT         = 8;
+static const float SCROLL_AREA_PADDING = 3;
+static const float INDENT_SIZE         = 16;
+static const float AREA_HEADER         = 20;
 
 bool Imgui::beginScrollArea(const std::string& name, int x, int y, int w, int h, int& scroll)
 {
@@ -294,10 +294,10 @@ bool Imgui::button(const std::string& text, bool enabled)
     state.widgetId++;
     uint32_t id = (state.areaId<<16) | state.widgetId;
 
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW - SLIDER_MARKER_WIDTH;
-    int h = BUTTON_HEIGHT;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT;
+    float w = state.widgetW - SLIDER_MARKER_WIDTH;
+    float h = BUTTON_HEIGHT;
     state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
     bool over = enabled && inRect(x, y, w, h);
@@ -320,10 +320,10 @@ bool Imgui::item(const std::string& text, bool enabled)
     state.widgetId++;
     uint32_t id = (state.areaId<<16) | state.widgetId;
 
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW;
-    int h = BUTTON_HEIGHT;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT;
+    float w = state.widgetW;
+    float h = BUTTON_HEIGHT;
     state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
     bool over = enabled && inRect(x, y, w, h);
@@ -350,17 +350,17 @@ bool Imgui::check(const std::string& text, bool checked, bool enabled)
     state.widgetId++;
     uint32_t id = (state.areaId<<16) | state.widgetId;
 
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW;
-    int h = BUTTON_HEIGHT;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT;
+    float w = state.widgetW;
+    float h = BUTTON_HEIGHT;
     state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
     bool over = enabled && inRect(x, y, w, h);
     bool res = buttonLogic(id, over);
 
-    const int cx = x+w-BUTTON_HEIGHT/2-CHECK_SIZE/2;
-    const int cy = y+BUTTON_HEIGHT/2-CHECK_SIZE/2;
+    const float cx = x+w-BUTTON_HEIGHT/2-CHECK_SIZE/2;
+    const float cy = y+BUTTON_HEIGHT/2-CHECK_SIZE/2;
     addGfxCmdRoundedRect((float)cx-3, (float)cy-3, (float)CHECK_SIZE+6, (float)CHECK_SIZE+6, 4, RGBA(128,128,128, isActive(id)?196:96));
     if (checked)
     {
@@ -390,14 +390,14 @@ bool Imgui::collapse(const std::string& text, const std::string& subtext, bool c
     state.widgetId++;
     uint32_t id = (state.areaId << 16) | state.widgetId;
 
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
-    int w = state.widgetW;
-    int h = BUTTON_HEIGHT;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT;
+    float w = state.widgetW;
+    float h = BUTTON_HEIGHT;
     state.widgetY -= BUTTON_HEIGHT; // + DEFAULT_SPACING;
 
-    const int cx = x + BUTTON_HEIGHT / 2 - CHECK_SIZE / 2;
-    const int cy = y + BUTTON_HEIGHT / 2 - CHECK_SIZE / 2;
+    const float cx = x + BUTTON_HEIGHT / 2 - CHECK_SIZE / 2;
+    const float cy = y + BUTTON_HEIGHT / 2 - CHECK_SIZE / 2;
 
     bool over = enabled && inRect(x, y, w, h);
     bool res = buttonLogic(id, over);
@@ -436,8 +436,8 @@ bool Imgui::collapse(const std::string& text, const std::string& subtext, bool c
 }
 void Imgui::label(const std::string& text, TextAlign align, bool dontMove, float scale)
 {
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT * scale;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT * scale;
     if (!dontMove)
     {
         state.widgetY -= BUTTON_HEIGHT * scale;
@@ -456,9 +456,9 @@ void Imgui::label(const std::string& text, TextAlign align, bool dontMove, float
 }
 void Imgui::value(const std::string& text, TextAlign align, float scale)
 {
-    int x = state.widgetX;
-    const int y = state.widgetY - BUTTON_HEIGHT * scale;
-    const int w = state.widgetW;
+    float x = state.widgetX;
+    const float y = state.widgetY - BUTTON_HEIGHT * scale;
+    const float w = state.widgetW;
     state.widgetY -= BUTTON_HEIGHT * scale;
 
     if (align == ALIGN_CENTER)
@@ -480,7 +480,7 @@ void Imgui::labelledValue(const std::string& label, const std::string& value, fl
     this->value(value, ALIGN_RIGHT, scale);
 }
 
-void Imgui::renderPort(int x, int y, int w)
+void Imgui::renderPort(float x, float y, float w)
 {
     state.widgetX = x;
     state.widgetY = y;
@@ -492,10 +492,10 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
     state.widgetId++;
     uint32_t id = (state.areaId << 16) | state.widgetId;
 
-    int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT * scale;
-    int w = state.widgetW;
-    int h = SLIDER_HEIGHT * scale;
+    float x = state.widgetX;
+    float y = state.widgetY - BUTTON_HEIGHT * scale;
+    float w = state.widgetW;
+    float h = SLIDER_HEIGHT * scale;
     state.widgetY -= (SLIDER_HEIGHT + DEFAULT_SPACING) * scale;
 
     addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 4.0f * scale, RGBA(255,255,255,32));
@@ -603,10 +603,10 @@ void Imgui::separator(float scale)
 }
 void Imgui::separatorLine()
 {
-    int x = state.widgetX;
-    int y = state.widgetY - DEFAULT_SPACING * 2;
-    int w = state.widgetW;
-    int h = 1;
+    float x = state.widgetX;
+    float y = state.widgetY - DEFAULT_SPACING * 2;
+    float w = state.widgetW;
+    float h = 1;
     state.widgetY -= DEFAULT_SPACING * 4;
 
     addGfxCmdRect((float)x, (float)y, (float)w, (float)h, RGBA(255,255,255,32));

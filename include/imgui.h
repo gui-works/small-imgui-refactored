@@ -111,9 +111,9 @@ namespace imgui
         int dragX                = 0;
         int dragY                = 0;
         float dragOrig           = 0.f;
-        int widgetX              = 0;
-        int widgetY              = 0;
-        int widgetW              = 0;
+        float widgetX              = 0;
+        float widgetY              = 0;
+        float widgetW              = 0;
         bool insideCurrentScroll = false;
         uint32_t areaId          = 0;
         uint32_t widgetId        = 0;
@@ -141,7 +141,7 @@ namespace imgui
         void separator(float scale = 1.f);
         void separatorLine();
 
-        void renderPort(int x, int y, int w);
+        void renderPort(float x, float y, float w);
 
         bool button  (const std::string& name, bool enabled = true);
         bool item    (const std::string& name, bool enabled = true);
