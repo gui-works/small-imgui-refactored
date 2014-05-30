@@ -523,7 +523,7 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
             u = u < 0 ? 0 : u > 1 ? 1 : u;
             float oldval = val;
             val = vmin + u * (vmax-vmin);
-            val = floorf(val / vinc + 0.5f) * vinc; // Snap to vinc
+            val = roundf(val / vinc) * vinc; // Snap to vinc
             m = (int)(u * range);
             valChanged = val != oldval;
         }
