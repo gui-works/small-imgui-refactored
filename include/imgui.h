@@ -136,9 +136,9 @@ namespace imgui
         bool beginScrollArea(const std::string& name, int x, int y, int w, int h, int& scroll);
         void endScrollArea();
 
-        void indent();
-        void unindent();
-        void separator();
+        void indent(float scale = 1.f);
+        void unindent(float scale = 1.f);
+        void separator(float scale = 1.f);
         void separatorLine();
 
         void renderPort(int x, int y, int w);
@@ -147,11 +147,11 @@ namespace imgui
         bool item    (const std::string& name, bool enabled = true);
         bool check   (const std::string& name, bool checked, bool enabled = true);
         bool collapse(const std::string& name, const std::string& subText, bool checked, bool enabled = true);
-        void label   (const std::string& name, TextAlign align = ALIGN_LEFT, bool dontMove = false);
-        void value   (const std::string& name, TextAlign align = ALIGN_RIGHT);
-        bool slider  (const std::string& name, float& value, float vmin, float vmax, float vinc, bool enabled = true, float pointSize = 8.f);
+        void label   (const std::string& name, TextAlign align = ALIGN_LEFT, bool dontMove = false, float scale = 1.f);
+        void value   (const std::string& name, TextAlign align = ALIGN_RIGHT, float scale = 1.f);
+        bool slider  (const std::string& name, float& value, float vmin, float vmax, float vinc, bool enabled = true, float scale = 1.f);
 
-        void labelledValue(const std::string& name, const std::string& value);
+        void labelledValue(const std::string& name, const std::string& value, float scale = 1.f);
 
         void drawText(int x, int y, TextAlign align, const std::string& text, uint32_t color, float pointSize = 8.f);
         void drawLine(float x0, float y0, float x1, float y1, float r, uint32_t color);

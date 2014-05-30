@@ -434,13 +434,13 @@ bool Imgui::collapse(const std::string& text, const std::string& subtext, bool c
 
     return res;
 }
-void Imgui::label(const std::string& text, TextAlign align, bool dontMove)
+void Imgui::label(const std::string& text, TextAlign align, bool dontMove, float scale)
 {
     int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
+    int y = state.widgetY - BUTTON_HEIGHT * scale;
     if (!dontMove)
     {
-        state.widgetY -= BUTTON_HEIGHT;
+        state.widgetY -= BUTTON_HEIGHT * scale;
     }
     if (align == ALIGN_CENTER)
     {
@@ -450,14 +450,16 @@ void Imgui::label(const std::string& text, TextAlign align, bool dontMove)
     {
         x += state.widgetW;
     }
-    addGfxCmdText(x, y + BUTTON_HEIGHT / 2 - TEXT_HEIGHT / 2, align, text, RGBA(255,255,255,255));
+    addGfxCmdText(x, y + (BUTTON_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale, align,
+                  text, RGBA(255,255,255,255),
+                  8.f * scale);
 }
-void Imgui::value(const std::string& text, TextAlign align)
+void Imgui::value(const std::string& text, TextAlign align, float scale)
 {
     int x = state.widgetX;
-    const int y = state.widgetY - BUTTON_HEIGHT;
+    const int y = state.widgetY - BUTTON_HEIGHT * scale;
     const int w = state.widgetW;
-    state.widgetY -= BUTTON_HEIGHT;
+    state.widgetY -= BUTTON_HEIGHT * scale;
 
     if (align == ALIGN_CENTER)
     {
@@ -465,15 +467,17 @@ void Imgui::value(const std::string& text, TextAlign align)
     }
     else if (align == ALIGN_RIGHT)
     {
-        x += w - SLIDER_HEIGHT / 2;
+        x += w;
     }
 
-    addGfxCmdText(x, y + BUTTON_HEIGHT / 2 - TEXT_HEIGHT / 2, align, text, RGBA(255,255,255,200));
+    addGfxCmdText(x, y + (BUTTON_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale,
+                  align, text, RGBA(255,255,255,200),
+                  8.f * scale);
 }
-void Imgui::labelledValue(const std::string& label, const std::string& value)
+void Imgui::labelledValue(const std::string& label, const std::string& value, float scale)
 {
-    this->label(label, ALIGN_LEFT, true);
-    this->value(value);
+    this->label(label, ALIGN_LEFT, true, scale);
+    this->value(value, ALIGN_RIGHT, scale);
 }
 
 void Imgui::renderPort(int x, int y, int w)
@@ -483,26 +487,26 @@ void Imgui::renderPort(int x, int y, int w)
     state.widgetW = w;
 }
 
-bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, float vinc, bool enabled, float pointSize)
+bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, float vinc, bool enabled, float scale)
 {
     state.widgetId++;
     uint32_t id = (state.areaId << 16) | state.widgetId;
 
     int x = state.widgetX;
-    int y = state.widgetY - BUTTON_HEIGHT;
+    int y = state.widgetY - BUTTON_HEIGHT * scale;
     int w = state.widgetW;
-    int h = SLIDER_HEIGHT;
-    state.widgetY -= SLIDER_HEIGHT + DEFAULT_SPACING;
+    int h = SLIDER_HEIGHT * scale;
+    state.widgetY -= (SLIDER_HEIGHT + DEFAULT_SPACING) * scale;
 
-    addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 4.0f, RGBA(255,255,255,32));
+    addGfxCmdRoundedRect((float)x, (float)y, (float)w, (float)h, 4.0f * scale, RGBA(255,255,255,32));
 
-    const int range = w - SLIDER_MARKER_WIDTH;
+    const int range = w - SLIDER_MARKER_WIDTH * scale;
 
     float u = (val - vmin) / (vmax-vmin);
     u = u < 0 ? 0 : u > 1 ? 1 : u;
     int m = (int)(u * range);
 
-    bool over = enabled && inRect(x + m, y, SLIDER_MARKER_WIDTH, SLIDER_HEIGHT);
+    bool over = enabled && inRect(x + m, y, SLIDER_MARKER_WIDTH * scale, SLIDER_HEIGHT * scale);
     buttonLogic(id, over);
     bool valChanged = false;
 
@@ -529,18 +533,18 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
     {
         addGfxCmdRoundedRect((float)(x + m),
                              (float)y,
-                             (float)SLIDER_MARKER_WIDTH,
-                             (float)SLIDER_HEIGHT,
-                             4.0f,
+                             (float)SLIDER_MARKER_WIDTH * scale,
+                             (float)SLIDER_HEIGHT * scale,
+                             4.0f * scale,
                              RGBA(255,255,255,255));
     }
     else
     {
         addGfxCmdRoundedRect((float)(x + m),
                              (float)y,
-                             (float)SLIDER_MARKER_WIDTH,
-                             (float)SLIDER_HEIGHT,
-                             4.0f,
+                             (float)SLIDER_MARKER_WIDTH * scale,
+                             (float)SLIDER_HEIGHT * scale,
+                             4.0f * scale,
                              isHot(id) ? RGBA(255,196,0,128) : RGBA(255,255,255,64));
     }
 
@@ -553,45 +557,49 @@ bool Imgui::slider(const std::string& text, float& val, float vmin, float vmax, 
     if (enabled)
     {
         addGfxCmdText(x,
-                      y + SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2,
+                      y + (SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale,
                       ALIGN_LEFT,
                       text,
-                      isHot(id) ? RGBA(255,196,0,255) : RGBA(255,255,255,200));
+                      isHot(id) ? RGBA(255,196,0,255) : RGBA(255,255,255,200),
+                      8.f * scale);
         addGfxCmdText(x + w,
-                      y + SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2,
+                      y + (SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale,
                       ALIGN_RIGHT,
                       msg,
-                      isHot(id) ? RGBA(255,196,0,255) : RGBA(255,255,255,200));
+                      isHot(id) ? RGBA(255,196,0,255) : RGBA(255,255,255,200),
+                      8.f * scale);
     }
     else
     {
         addGfxCmdText(x,
-                      y + SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2,
+                      y + (SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale,
                       ALIGN_LEFT,
                       text,
-                      RGBA(128,128,128,200));
+                      RGBA(128,128,128,200),
+                      8.f * scale);
         addGfxCmdText(x + w,
-                      y + SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2,
+                      y + (SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2) * scale,
                       ALIGN_RIGHT,
                       msg,
-                      RGBA(128,128,128,200));
+                      RGBA(128,128,128,200),
+                      8.f * scale);
     }
 
     return valChanged;
 }
-void Imgui::indent()
+void Imgui::indent(float scale)
 {
-    state.widgetX += INDENT_SIZE;
-    state.widgetW -= INDENT_SIZE;
+    state.widgetX += INDENT_SIZE * scale;
+    state.widgetW -= INDENT_SIZE * scale;
 }
-void Imgui::unindent()
+void Imgui::unindent(float scale)
 {
-    state.widgetX -= INDENT_SIZE;
-    state.widgetW += INDENT_SIZE;
+    state.widgetX -= INDENT_SIZE * scale;
+    state.widgetW += INDENT_SIZE * scale;
 }
-void Imgui::separator()
+void Imgui::separator(float scale)
 {
-    state.widgetY -= DEFAULT_SPACING * 3;
+    state.widgetY -= DEFAULT_SPACING * 3 * scale;
 }
 void Imgui::separatorLine()
 {
