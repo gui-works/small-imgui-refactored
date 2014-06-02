@@ -417,9 +417,9 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
     const char * vs =
     "#version 120\n"
     "uniform vec2 Viewport;\n"
-    "in vec2 VertexPosition;\n"
-    "in vec2 VertexTexCoord;\n"
-    "in vec4 VertexColor;\n"
+    "attribute vec2 VertexPosition;\n"
+    "attribute vec2 VertexTexCoord;\n"
+    "attribute vec4 VertexColor;\n"
     "varying vec2 texCoord;\n"
     "varying vec4 vertexColor;\n"
     "void main(void)\n"
