@@ -126,6 +126,7 @@ namespace imgui
         int focusBottom          = 0;
         uint32_t scrollId        = 0;
         bool insideScrollArea    = false;
+        float x0, y0, x1, y1;
     };
 
     struct Imgui

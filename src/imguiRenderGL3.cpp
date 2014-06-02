@@ -454,8 +454,8 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
 
     const char * fs2 =
     "#version 120\n"
-    "in vec2 texCoord;\n"
-    "in vec4 vertexColor;\n"
+    "varying vec2 texCoord;\n"
+    "varying vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
     "void main(void)\n"
     "{\n"
@@ -465,8 +465,8 @@ bool ImguiRenderGL3::init(const std::string& fontpath)
 
     const char * fs =
     "#version 120\n"
-    "in vec2 texCoord;\n"
-    "in vec4 vertexColor;\n"
+    "varying vec2 texCoord;\n"
+    "varying vec4 vertexColor;\n"
     "uniform sampler2D Texture;\n"
     "void main(void)\n"
     "{\n"
@@ -761,7 +761,6 @@ void ImguiRenderGL3:: drawText(float x, float y, const std::string& textin, int 
             glBindBuffer(GL_ARRAY_BUFFER, state.vbos[2]);
             glBufferData(GL_ARRAY_BUFFER, 24*sizeof(float), c, GL_STREAM_DRAW);
             glDrawArrays(GL_TRIANGLES, 0, 6);
-
         }
         ++text;
     }
